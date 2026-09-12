@@ -1,0 +1,147 @@
+{
+  "Step_carpet_0": {
+    "seconds": 0.145,
+    "peak_dbfs": -6.9,
+    "rms_dbfs": -24.6
+  },
+  "Step_carpet_1": {
+    "seconds": 0.145,
+    "peak_dbfs": -6.9,
+    "rms_dbfs": -23.9
+  },
+  "Step_carpet_2": {
+    "seconds": 0.145,
+    "peak_dbfs": -6.9,
+    "rms_dbfs": -23.9
+  },
+  "Step_carpet_3": {
+    "seconds": 0.145,
+    "peak_dbfs": -6.9,
+    "rms_dbfs": -26.0
+  },
+  "Step_carpet_4": {
+    "seconds": 0.145,
+    "peak_dbfs": -6.9,
+    "rms_dbfs": -26.0
+  },
+  "Step_concrete_0": {
+    "seconds": 0.106,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -18.7
+  },
+  "Step_concrete_1": {
+    "seconds": 0.108,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -16.4
+  },
+  "Step_concrete_2": {
+    "seconds": 0.113,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -17.5
+  },
+  "Step_concrete_3": {
+    "seconds": 0.111,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -19.0
+  },
+  "Step_concrete_4": {
+    "seconds": 0.114,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -19.5
+  },
+  "Step_grass_0": {
+    "seconds": 0.778,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -25.8
+  },
+  "Step_grass_1": {
+    "seconds": 0.674,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -26.5
+  },
+  "Step_grass_2": {
+    "seconds": 0.692,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -25.6
+  },
+  "Step_grass_3": {
+    "seconds": 0.669,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -24.2
+  },
+  "Step_grass_4": {
+    "seconds": 0.59,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -26.8
+  },
+  "Step_wood_0": {
+    "seconds": 0.25,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -19.4
+  },
+  "Step_wood_1": {
+    "seconds": 0.252,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -20.2
+  },
+  "Step_wood_2": {
+    "seconds": 0.251,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -20.3
+  },
+  "Step_wood_3": {
+    "seconds": 0.252,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -20.6
+  },
+  "Step_wood_4": {
+    "seconds": 0.248,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -19.7
+  },
+  "RailRolling": {
+    "seconds": 16.0,
+    "peak_dbfs": -4.7,
+    "rms_dbfs": -16.4
+  },
+  "RailJoint": {
+    "seconds": 0.85,
+    "peak_dbfs": -6.4,
+    "rms_dbfs": -28.2
+  },
+  "CabinCreak": {
+    "seconds": 0.83,
+    "peak_dbfs": -17.7,
+    "rms_dbfs": -35.1
+  },
+  "DoorOpen": {
+    "seconds": 1.5,
+    "peak_dbfs": -8.9,
+    "rms_dbfs": -37.1
+  },
+  "DoorClose": {
+    "seconds": 1.5,
+    "peak_dbfs": -8.9,
+    "rms_dbfs": -37.1
+  },
+  "DoorLatch": {
+    "seconds": 0.261,
+    "peak_dbfs": -8.4,
+    "rms_dbfs": -30.4
+  },
+  "BrakeRelease": {
+    "seconds": 2.8,
+    "peak_dbfs": -8.9,
+    "rms_dbfs": -28.2
+  },
+  "FieldWind": {
+    "seconds": 23.0,
+    "peak_dbfs": -12.0,
+    "rms_dbfs": -27.3
+  },
+  "PAChime": {
+    "seconds": 1.8,
+    "peak_dbfs": -9.1,
+    "rms_dbfs": -21.5
+  }
+}

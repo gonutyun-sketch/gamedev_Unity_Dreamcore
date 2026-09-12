@@ -1,0 +1,19 @@
+NO DESTINATION — 첫 플레이 프로토타입
+
+독립 실행 파일: 빌드 실패. 설치된 Unity의 WindowsStandaloneSupport DLL 헤더가 0으로 채워져 BadImageFormatException이 발생했습니다. Unity 설치/Windows 빌드 지원 복구 후 NO DESTINATION → Build Windows Prototype 메뉴로 다시 빌드할 수 있습니다.
+Unity 실행: Assets/NoDestination/Scenes/NoDestination.unity 열기 → Play
+
+WASD 이동 / 마우스 시점 / E 조사 / 왼쪽 Shift 빠르게 걷기 / ESC 메뉴
+
+1. 열차에서 약 11초 기다립니다.
+2. 앞쪽 문까지 걸어가 E를 눌러 THE FIELD로 나갑니다.
+3. 밀밭 길 끝의 집에 들어가 탁자 위 라디오와 뒤쪽 벽의 가족사진을 조사합니다.
+4. 뒤돌아보면 집 바로 앞에 플랫폼이 생깁니다. 플랫폼의 녹색 문에 가까이 가서 E를 누릅니다.
+5. 돌아온 객차에는 좌석이 하나 늘었고 가방이 사라져 있습니다.
+
+현재 범위: 한 객차 → 밀밭 → 집 → 라디오/사진 → 공간 변화 → 귀환까지.
+다른 5개 역, 엔딩, 저장, 성우 녹음은 아직 없습니다. 그래픽은 절차적 블록아웃 단계입니다.
+
+Windows Computer Use는 창 식별과 키보드 Refresh가 작동했지만, 화면 캡처와 클릭은 도구 오류로 실패했습니다.
+Unity Play Mode에서 스크립트로 이동 경로와 상호작용 루프를 검증했습니다. 수동 마우스/WASD 전체 플레이 검증과는 구분됩니다.
+
