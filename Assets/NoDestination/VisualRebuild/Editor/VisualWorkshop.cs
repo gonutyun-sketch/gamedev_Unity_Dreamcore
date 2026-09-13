@@ -157,7 +157,7 @@ namespace NoDestination.VisualRebuild.Editor
                 Cube("Exterior / brass pinstripe",new Vector3(side*2.38f,.8f,0),new Vector3(.015f,.026f,18),mats["Brass"],root,false);
                 foreach(float z in new[]{-6.2f,-4.8f,4.8f,6.2f})
                 {
-                    var wheel=GameObject.CreatePrimitive(PrimitiveType.Cylinder);wheel.name="Bogie / steel wheel";wheel.transform.SetParent(root,false);wheel.transform.localPosition=new Vector3(side*1.3f,-.18f,z);wheel.transform.localRotation=Quaternion.Euler(0,0,90);wheel.transform.localScale=new Vector3(.65f,.09f,.65f);wheel.GetComponent<Renderer>().sharedMaterial=mats["Ink"];UnityEngine.Object.DestroyImmediate(wheel.GetComponent<Collider>());
+                    var wheel=GameObject.CreatePrimitive(PrimitiveType.Cylinder);wheel.name="Bogie / steel wheel";wheel.transform.SetParent(root,false);wheel.transform.localPosition=new Vector3(side*1.22f,-.32f,z);wheel.transform.localRotation=Quaternion.Euler(0,0,90);wheel.transform.localScale=new Vector3(.38f,.09f,.38f);wheel.GetComponent<Renderer>().sharedMaterial=mats["Ink"];UnityEngine.Object.DestroyImmediate(wheel.GetComponent<Collider>());
                 }
             }
             // Lamps use warm local light; the outside remains clean blue/gold.
@@ -190,19 +190,20 @@ namespace NoDestination.VisualRebuild.Editor
             Point("House / opaline lamp",new Vector3(0,2.63f,65),new Color(1,.75f,.43f),5,10,root);
             Detail("Red ticket interaction","ticket","승차권 확인","출발역: UNKNOWN\n목적지는 지워져 있다. 밀밭의 집으로 가보자.",new Vector3(-1.07f,.95f,-7.35f),new Vector3(.19f,.08f,.32f),root);
             Detail("Suitcase interaction","case","여행 가방 조사","누군가 곧 돌아올 것처럼 놓여 있다.",new Vector3(1.3f,.92f,-3.9f),new Vector3(.8f,.48f,.34f),root);
-            Detail("Radio interaction","radio","라디오 켜기","Next stop...\n열차에서 들었던 목소리다. 벽의 가족사진을 확인하자.",new Vector3(-2,1.48f,66.3f),new Vector3(1.08f,.72f,.44f),root);
+            Detail("Radio interaction","radio","라디오 맞추기","스피커에서 희미한 잡음이 들린다.",new Vector3(-2,1.48f,66.3f),new Vector3(1.02f,.68f,.40f),root);
             Detail("Photo interaction","photo","가족사진 조사","기억나지 않는 가족. 그런데 낯설지 않다.",new Vector3(1.4f,1.9f,68.86f),new Vector3(1.17f,.94f,.18f),root);
             var player=new GameObject("Player / first person");player.transform.SetParent(root);player.transform.position=new Vector3(-.05f,.12f,-7.7f);
             var cc=player.AddComponent<CharacterController>();cc.height=1.72f;cc.radius=.22f;cc.center=new Vector3(0,.86f,0);cc.stepOffset=.30f;
             var cameraGo=new GameObject("Eyes");cameraGo.transform.SetParent(player.transform,false);cameraGo.transform.localPosition=new Vector3(0,1.59f,0);
             var camera=cameraGo.AddComponent<Camera>();camera.tag="MainCamera";camera.fieldOfView=63;camera.nearClipPlane=.045f;camera.farClipPlane=350;camera.allowHDR=true;camera.clearFlags=CameraClearFlags.Skybox;
             camera.GetUniversalAdditionalCameraData().renderPostProcessing=true;camera.GetUniversalAdditionalCameraData().antialiasing=AntialiasingMode.SubpixelMorphologicalAntiAliasing;cameraGo.AddComponent<AudioListener>();
-            var journey=player.AddComponent<VisualJourney>();journey.eyes=camera;journey.slidingDoor=door;
+            var journey=player.AddComponent<VisualJourney>();journey.eyes=camera;journey.slidingDoor=door;player.AddComponent<JourneyInterface>();
             foreach(var t in carriage.GetComponentsInChildren<Transform>())if(t.name.StartsWith("Seat bay L 03"))
             {
-                var unexpected=UnityEngine.Object.Instantiate(t.gameObject,root);unexpected.name="The seat that was not here";unexpected.transform.SetPositionAndRotation(new Vector3(0,0,4),Quaternion.identity);unexpected.SetActive(false);journey.changedSeat=unexpected;break;
+                // Reserved for a later, separately authored carriage distortion; never obstruct the opening aisle.
+                journey.changedSeat=null;break;
             }
-            TrainWorldBuilder.Enhance(root,carriage,journey);CraftAndAudio.Apply(root,journey);HouseChapterBuilder.Apply(root,journey);
+            TrainWorldBuilder.Enhance(root,carriage,journey);CraftAndAudio.Apply(root,journey);HouseChapterBuilder.Apply(root,journey);FieldChapterPolish.Apply(root,journey);FinishMaterials.Apply(root,journey);CarriageExpansion.Apply(root,journey);SeaChapterBuilder.Apply(root,journey);
             DynamicGI.UpdateEnvironment();
             AssetDatabase.SaveAssets();EditorSceneManager.SaveScene(scene,ScenePath);
             if(SceneView.lastActiveSceneView)SceneView.lastActiveSceneView.LookAt(new Vector3(0,1.5f,0),Quaternion.Euler(9,12,0),10);
@@ -242,7 +243,7 @@ namespace NoDestination.VisualRebuild.Editor
                 {
                     float x=bx*20+(float)rng.NextDouble()*20,z=bz*20+(float)rng.NextDouble()*20;
                     float t=Mathf.Clamp01((z-12.7f)/47.5f);float pathX=Mathf.Lerp(9.2f,22,t);
-                    if(Mathf.Abs(x)<3.8f||x>2.2f&&x<9.5f&&z> -5&&z<15||z>12.7f&&z<61&&Mathf.Abs(x-pathX)<1.55f||Mathf.Abs(x-22)<5.5f&&z>59&&z<70)continue;
+                    if(Mathf.Abs(x)<3.8f||x>2.2f&&x<9.5f&&z> -5&&z<15)continue;
                     float height=1.4f+(float)rng.NextDouble()*.42f,width=height*.75f;float tint=.84f+(float)rng.NextDouble()*.23f;float angle=(float)rng.NextDouble()*Mathf.PI;
                     for(int plane=0;plane<2;plane++)
                     {
@@ -273,8 +274,14 @@ namespace NoDestination.VisualRebuild.Editor
             Capture(camera,new Vector3(22.6f,1.15f,61.5f),Quaternion.LookRotation(new Vector3(25.2f,2.4f,65.5f)-new Vector3(22.6f,1.15f,61.5f)),"11-house-staircase");
             Capture(camera,new Vector3(23.6f,4.32f,62.2f),Quaternion.LookRotation(new Vector3(20,3.8f,66.5f)-new Vector3(23.6f,4.32f,62.2f)),"12-upstairs-memory-room");
             Capture(camera,new Vector3(21.9f,4.25f,66.6f),Quaternion.LookRotation(new Vector3(21.9f,4.03f,68.6f)-new Vector3(21.9f,4.25f,66.6f)),"13-power-puzzle");
+            Capture(camera,new Vector3(0,1.63f,11.4f),Quaternion.identity,"14-dining-carriage");
             camera.transform.SetPositionAndRotation(position,rotation);camera.aspect=aspect;
             File.WriteAllText("Artifacts/VisualRebuild/render-complete.txt",DateTime.Now.ToString("O"));
+        }
+        internal static void CaptureEvidence(Camera camera,Vector3 position,Quaternion rotation,string filename)
+        {
+            var before=camera.transform.position;var angle=camera.transform.rotation;float aspect=camera.aspect;
+            Capture(camera,position,rotation,filename);camera.transform.SetPositionAndRotation(before,angle);camera.aspect=aspect;
         }
         static void Capture(Camera camera,Vector3 position,Quaternion rotation,string filename)
         {

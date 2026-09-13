@@ -17,6 +17,15 @@ namespace NoDestination.VisualRebuild
         public HouseMemoryPuzzle housePuzzle;
         public bool MapRevealed {get;private set;}
         public float MapTitleAge {get;private set;}
+        public string MapName {get;private set;}="THE FIELD";
+        public string MapCaption {get;private set;}="첫 번째 기억  /  돌아오지 않는 오후";
+        public void ShowMapTitle(string name,string caption){MapName=name;MapCaption=caption;MapRevealed=true;MapTitleAge=0;}
+        public bool ReadyForMission => TicketRead||introLine>=2;
+        public bool SubtitlesBusy => subtitleLine.Length>0;
+        public bool TicketRead {get;private set;}
+        public bool GameStarted {get;private set;}
+        public string FocusLabel => focusedDetail?focusedDetail.label:"";
+        public void BeginGame(){GameStarted=true;SetPaused(false);}
         readonly Queue<string> subtitleLines=new Queue<string>();
         string subtitleLine="";float subtitleAge;int lastSubtitleLetters;
         JourneyDetail focusedDetail;
@@ -42,16 +51,21 @@ namespace NoDestination.VisualRebuild
         {
             controller=GetComponent<CharacterController>();yaw=targetYaw=transform.eulerAngles.y;eyeBase=eyes.transform.localPosition;
             Cursor.lockState=CursorLockMode.Locked;Cursor.visible=false;
-Show("집으로 가는 열차를 기다리고 있었다.\n기억나는 것은 거기까지다.",7);
+            if(GetComponent<JourneyInterface>()&&!GameStarted)SetPaused(true);else GameStarted=true;
         }
         public void SetPaused(bool value){paused=value;Time.timeScale=value?0:1;AudioListener.pause=value;Cursor.lockState=value?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=value;}
         public void ResetPose(Vector3 position,float heading=0)
         {
             controller.enabled=false;transform.position=position;controller.enabled=true;targetYaw=yaw=heading;targetPitch=pitch=0;movement=Vector3.zero;eyes.transform.localPosition=eyeBase;
         }
+        public void AimAt(Vector3 point)
+        {
+            var direction=(point-eyes.transform.position).normalized;targetYaw=yaw=Mathf.Atan2(direction.x,direction.z)*Mathf.Rad2Deg;targetPitch=pitch=-Mathf.Asin(direction.y)*Mathf.Rad2Deg;
+            transform.rotation=Quaternion.Euler(0,yaw,0);eyes.transform.localRotation=Quaternion.Euler(pitch,0,0);
+        }
         void Update()
         {
-            if(Input.GetKeyDown(KeyCode.Escape))SetPaused(!paused);
+            if(GameStarted&&Input.GetKeyDown(KeyCode.Escape))SetPaused(!paused);
             if(paused)return;
             if(MapRevealed)MapTitleAge+=Time.deltaTime;
             UpdateSubtitle();
@@ -64,10 +78,10 @@ Show("집으로 가는 열차를 기다리고 있었다.\n기억나는 것은 �
                 eyes.transform.localRotation=Quaternion.Euler(Mathf.Lerp(24,0,rise),Mathf.Lerp(-18,0,rise),Mathf.Lerp(-9,0,rise));
                 eyes.fieldOfView=Mathf.Lerp(54,63,rise);return;
             }
-            if(introLine==0&&elapsed>8&&stage==0){introLine=1;Show("눈을 떴을 때, 객차에는 아무도 없었다.\n그런데 열차는 여전히 달리고 있다.",7);}
-            if(introLine==1&&elapsed>17&&stage==0){introLine=2;Show("좌석 옆에 빨간 승차권이 놓여 있다.\n목적지를 확인해 봐야겠다.",6);}
-            if(train&&train.arrived&&!arrivalSaid){arrivalSaid=true;Show("다음 역은 THE FIELD입니다.\n놓고 온 물건은 그대로 있습니다. 문이 닫히기 전에 돌아오세요.",8);}
-            if(!scriptedMove.HasValue){targetYaw+=Input.GetAxisRaw("Mouse X")*1.45f;targetPitch=Mathf.Clamp(targetPitch-Input.GetAxisRaw("Mouse Y")*1.45f,-77,77);}
+            if(introLine==0&&elapsed>12&&stage==0){introLine=1;Show("집으로 가는 열차를 기다리고 있었다.\n기억나는 것은 거기까지다.",7);}
+            if(introLine==1&&elapsed>26&&stage==0&&!SubtitlesBusy){introLine=2;Show("객차에는 아무도 없다.\n좌석 옆에 빨간 승차권이 놓여 있다.",6);}
+            if(train&&train.arrived&&!arrivalSaid){arrivalSaid=true;Show("THE FIELD 역에 도착했다.\n저 집은 어디선가 본 것 같다.",8);}
+            if(!scriptedMove.HasValue){targetYaw+=Input.GetAxisRaw("Mouse X")*JourneyPreferences.Sensitivity;targetPitch=Mathf.Clamp(targetPitch-Input.GetAxisRaw("Mouse Y")*JourneyPreferences.Sensitivity,-77,77);}
             yaw=Mathf.LerpAngle(yaw,targetYaw,1-Mathf.Exp(-22*dt));pitch=Mathf.Lerp(pitch,targetPitch,1-Mathf.Exp(-22*dt));transform.rotation=Quaternion.Euler(0,yaw,0);
             Vector2 input=scriptedMove??new Vector2(Input.GetAxisRaw("Horizontal"),Input.GetAxisRaw("Vertical"));input=Vector2.ClampMagnitude(input,1);
             bool hurry=scriptedHurry||Input.GetKey(KeyCode.LeftShift);float walkSpeed=hurry?3.8f:2.15f;
@@ -80,14 +94,14 @@ Show("집으로 가는 열차를 기다리고 있었다.\n기억나는 것은 �
             float amount=Mathf.Clamp01(speed/2.5f)*(zooming?.3f:1);
             float trainAmount=train?train.speed/13:0;
             Vector3 bob=new Vector3(Mathf.Sin(bobPhase)*.027f,-Mathf.Cos(bobPhase*2)*.046f,0)*amount;
-            bool inside=Mathf.Abs(transform.position.x)<2.4f&&Mathf.Abs(transform.position.z)<9;
+            bool inside=Mathf.Abs(transform.position.x)<2.4f&&Mathf.Abs(transform.position.z)<28.5f;
             if(inside)bob+=new Vector3(Mathf.Sin(Time.time*2.7f)*.003f,Mathf.Sin(Time.time*10.3f)*.0015f,0)*trainAmount;
             eyes.transform.localPosition=Vector3.Lerp(eyes.transform.localPosition,eyeBase+bob,1-Mathf.Exp(-14*dt));
             float roll=Mathf.Sin(bobPhase)*.72f*amount+(inside?Mathf.Sin(Time.time*1.8f)*.13f*trainAmount:0);
             eyes.transform.localRotation=Quaternion.Euler(pitch,0,roll);eyes.fieldOfView=Mathf.SmoothDamp(eyes.fieldOfView,zooming?38:63,ref fovVelocity,.18f,150,dt);
             if(!MapRevealed&&stage>=1&&train&&train.arrived&&transform.position.x>2.8f){MapRevealed=true;MapTitleAge=0;soundscape.EnterField();}
             if(stage==1&&transform.position.x>8)stage=2;
-            if(stage==4&&inside&&Mathf.Abs(transform.position.x)<1.6f){stage=5;if(changedSeat)changedSeat.SetActive(true);Show("좌석이 하나 늘었다.\n내가 가져온 기억이 이곳에도 남은 것 같다.",8);if(train)train.Depart();}
+            if(stage==4&&inside&&Mathf.Abs(transform.position.x)<1.6f){stage=5;Show("사진 속 사람들은 누구였을까.\n열차가 다시 움직이기 시작한다.",8);if(train)train.Depart();}
             focusedDetail=FindInteraction();hint=focusedDetail?"조사하기 · "+focusedDetail.label:"";
             if(focusedDetail&&(Input.GetKeyDown(KeyCode.E)||Input.GetMouseButtonDown(0)))Examine(focusedDetail);
             bool mayExit=(!deadline||!deadline.missedTrain)&&stage>0&&(!train||train.arrived&&!train.departing);
@@ -97,10 +111,11 @@ Show("집으로 가는 열차를 기다리고 있었다.\n기억나는 것은 �
         }
         public void Examine(JourneyDetail detail)
         {
+            if(detail.key=="coach-door"||detail.key=="coach-return-door"){GetComponent<CarriageConnection>().Toggle();return;}
             if(housePuzzle&&housePuzzle.Handle(detail))return;
             Show(detail.text,9);
-            if(detail.key=="ticket"&&stage==0){stage=1;introLine=2;Show("UNKNOWN → HOME\nHOME은 지워져 있다. 뒷면에는 작은 집과 03:17이 적혀 있다.\n다음 역에서 이 집을 찾아보자.",11);}
-            if(detail.key=="radio"&&stage>=2&&stage<4){stage=3;if(soundscape)soundscape.PlayRadio();Show("잡음 사이로 오래된 멜로디가 흘러나온다.\n어릴 적 이층 방에서 듣던 노래다. 사진도 그곳에 있을까.",10);}
+            if(detail.key=="ticket"&&stage==0){TicketRead=true;stage=1;introLine=2;Show("UNKNOWN → HOME\nHOME 위로 검은 선이 그어져 있다.\n어디로 가는 표였을까.",11);}
+            if(detail.key=="radio"&&stage>=2&&stage<4){stage=3;if(soundscape)soundscape.PlayRadio();Show("잡음이 잠깐 끊겼다.\n문득, 위층 벽에 걸린 사진이 떠오른다.\n왜 그 사진이 생각났지?",10);}
             if(detail.key=="photo"&&stage==3){stage=4;Show("얼굴은 기억나지 않는다. 그런데 이 집의 냄새는 기억난다.\n사진 속 아이의 손에도 빨간 승차권이 있다.\n이 기억을 가지고 열차로 돌아가야겠다.",11);}
         }
         public void PresentSubtitle(string text,float seconds=7){Show(text,seconds);}
@@ -112,8 +127,11 @@ Show("집으로 가는 열차를 기다리고 있었다.\n기억나는 것은 �
                 if(!d.gameObject.activeInHierarchy)continue;
                 var collider=d.GetComponent<Collider>();Vector3 target=collider?collider.bounds.center:d.transform.position;
                 Vector3 offset=target-eyes.transform.position;float distance=offset.magnitude;
-                if(distance>3.2f||distance<.01f)continue;
-                float alignment=Vector3.Dot(eyes.transform.forward,offset/distance);if(alignment<.94f)continue;
+                if(distance>2.4f||distance<.01f||!collider)continue;
+                float alignment=Vector3.Dot(eyes.transform.forward,offset/distance);if(alignment<.985f)continue;
+                // A small assist around the actual shape, not a broad cone around every nearby object.
+                var ray=new Ray(eyes.transform.position,eyes.transform.forward);var aimBounds=collider.bounds;aimBounds.Expand(.07f);
+                if(!aimBounds.IntersectRay(ray,out float aimDistance)||aimDistance>2.4f)continue;
                 bool blocked=false;
                 foreach(var hit in Physics.RaycastAll(eyes.transform.position,offset.normalized,distance-.12f))
                 {
@@ -153,6 +171,7 @@ Show("집으로 가는 열차를 기다리고 있었다.\n기억나는 것은 �
         }
         void OnGUI()
         {
+            if(GetComponent<JourneyInterface>())return;
             float scale=Mathf.Clamp(Screen.height/900f,.7f,1.6f);GUI.matrix=Matrix4x4.Scale(Vector3.one*scale);float w=Screen.width/scale,h=Screen.height/scale;
             if(label==null){var font=Font.CreateDynamicFontFromOSFont("Malgun Gothic",18);label=new GUIStyle(GUI.skin.label){font=font,fontSize=15,wordWrap=true,normal={textColor=new Color(.96f,.92f,.80f)}};center=new GUIStyle(label){alignment=TextAnchor.MiddleCenter};heading=new GUIStyle(center){fontSize=27};subtitleStyle=new GUIStyle(center){fontSize=20};}
             string goal=objectives[Mathf.Clamp(stage,0,objectives.Length-1)];
